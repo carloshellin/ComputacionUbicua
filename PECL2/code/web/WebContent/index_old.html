@@ -1,0 +1,67 @@
+
+<!--indice creado por ana, a usar para los scripts-->
+<html>
+<head>
+<meta charset="UTF-8">
+<title>UAH Weather Stations</title>
+<!-- LIBRARIES -->
+<script src="./js/libs/jquery/jquery.min.js"></script>
+<script src="http://openlayers.org/api/OpenLayers.js"></script>
+<!-- STYLESHEETS -->
+<link rel="stylesheet" href="./css/bootswatch/flatly/bootstrap.min.css">
+<link rel="stylesheet" href="./css/navbar-fixed-side.css">
+<link rel="stylesheet" href="./css/layout.css">
+<link rel="stylesheet" href="./css/bootstrap-horizon.css">
+<link rel="stylesheet" href="./css/header.css">
+<link rel="stylesheet" href="./css/weather-icons.min.css">
+
+</head>
+<body>
+	<header>
+		<div class="wrapper">
+			<img src="./img/logo.png" alt="logo" width="50" height="50" /> 
+			<b class="pageTitle">UAH WHEATHER STATION</b>
+			<nav id="options"></nav>
+		</div>
+	</header>
+	<div class="container-fluid" style="height: 100%">
+		<iframe id="container-iframe" src="" width="100%" height="100%"
+			scrolling="yes" frameBorder="0" onload="onIframeLoad(this)" class="hide"> 
+		</iframe>
+	</div>
+</body>
+<script>
+	var idStation = 0;
+	var destination = (getURLParameter("dest") !== null) ? (getURLParameter("dest")) : "map.html";
+	$("#container-iframe").attr("src", "./" + destination);
+	
+	//ES:Opciones de la barra de navegación
+	//EN:Options on the navigation bar
+	var htmlOptions = '<a href="index.html?dest=map.html">Map</a>'
+					+ '<a href="index.html?dest=contact.html">Contact</a>';
+
+	document.getElementById('options').innerHTML = htmlOptions;
+	function getURLParameter(name) 
+	{
+		return decodeURIComponent((new RegExp('[?|&]' + name + '='
+				+ '([^&;]+?)(&|#|;|$)').exec(location.search) || [ null, '' ])[1].replace(/\+/g, '%20')) || null;
+	}
+
+	function onIframeLoad(obj) 
+	{
+		setTimeout
+		(
+			function() 
+			{
+				$("#loading-screen").addClass("hide");
+				$("#container-iframe").removeClass("hide");
+				$(document).height();
+				var height = $(document).height() > obj.contentWindow.document.body.scrollHeight ? 
+						$(document).height() + "px" : obj.contentWindow.document.body.scrollHeight + "px";
+				obj.style.height = height;
+				obj.height = height;
+			}, 500
+		);
+	}
+</script>
+</html>

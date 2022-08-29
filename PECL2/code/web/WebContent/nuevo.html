@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Nuevo</title>
+    <link rel="icon" href="img/plant.png">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="./js/libs/jquery/jquery.min.js"></script>
+    <script src="./js/libs/charts/Chart.min.js"></script>
+    <script type="text/javascript" src="./js/gstatic.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="js/libs/jquery-cookie/jquery.cookie.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+
+</head>
+
+<body>
+    <h1>Nueva maceta</h1>
+    <form action="Listado.html">
+        <!--aquí debo poner la direccion del server page con el script para procesar input data-->
+        <label for="nombreId">Breve Descripcion:</label><br>
+        <input type="text" id="Descripcion" user="usuario"><br>
+        <label for="tipo">Tipo de planta:</label><br>
+    </form>
+    <button id="boton">Crear Maceta</button>
+    <button id="boton3">Inicio</button>
+    <button id="boton4">Cerra Sesion</button>
+    <script>
+        var button = document.getElementById("boton");
+
+
+        //Creando el formulario dinamicamente
+
+        var direccion = "http://uah-plantas.tech/GetTipos";
+        $.ajax(
+            {
+                data: {},
+                url: direccion,
+                type: 'post',
+                async: true,
+                success: function (response) {
+                    var resp = JSON.parse(response);
+                    console.log(resp);
+                    for (var key in resp) {
+                        var fila = document.createElement("input"); //Creamos la chekbox y rellenamos sus parametros
+                        fila.type = "radio";
+                        fila.id = resp[key]["id"];
+                        fila.name = "eleccion";
+                        fila.value = resp[key]["id"];
+                        var texto = document.createElement("label");
+                        texto.for = "male";
+                        var t = document.createTextNode(resp[key]["nombre"]);
+                        texto.appendChild(t);
+                        //Añadimos al form
+                        document.forms[0].appendChild(fila);
+                        document.forms[0].appendChild(texto);
+                        //Salto de linea
+                        var br = document.createElement("br");
+                        document.forms[0].appendChild(br);
+
+                    }
+                }
+            }
+        );
+
+        button.onclick = function () {
+
+            var id = $.cookie('id');
+
+            //Sacamos el tipo
+            var tipo;
+            var elementos = document.getElementsByName("eleccion");
+
+            for (var i = 0; i < elementos.length; i++) {
+                if (elementos[i].checked) {
+                    tipo = elementos[i].id;
+                }
+            }
+
+            //No puede tener espacios asique debemos formatearlo
+            var descipcion = document.getElementById("Descripcion").value;
+            var tokens = descipcion.split(" ");
+            var nDesc = " ";
+            for (t in tokens) {
+                nDesc += "%20" + tokens[t];
+            }
+            console.log(nDesc)
+
+
+            var direccion = "http://uah-plantas.tech/NewMaceta?descripcion=" + nDesc + "&usuario_id=" + id + "&tipo_id="
+                + tipo;
+
+            $.ajax(
+                {
+                    data: {},
+                    url: direccion,
+                    type: 'post',
+                    async: true,
+                    success: function (response) {
+                        var resp = JSON.parse(response);
+                        if (response == 0) {
+                            location.href = "listado.html";//Nos lleva a la pagina d iniciar sesion
+                        } else {
+                            alert("Error intentelo de nuevo");
+                        }
+                    }
+                });
+
+
+
+
+        }
+
+
+        var button3 = document.getElementById("boton3");
+
+        button3.onclick = function () {
+            location.href = "listado.html";
+        }
+
+        var button4 = document.getElementById("boton4");
+
+        button4.onclick = function () {
+            $.removeCookie('id');
+            location.href = "index.html";
+        }
+
+    </script>
+
+</body>

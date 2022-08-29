@@ -1,0 +1,237 @@
+<html>
+    <head>
+    	<meta charset="UTF-8">
+        <!-- LIBRARIES -->
+	    <script src="./js/libs/jquery/jquery.min.js"></script>
+	    <script src="http://openlayers.org/api/OpenLayers.js"></script>        
+        <!-- STYLESHEETS -->
+	    <link rel="stylesheet" href="./css/bootstrap.min.css">
+	    <link rel="stylesheet" href="./css/navbar-fixed-side.css"> 
+	    <link rel="stylesheet" href="./css/layout.css">
+	    <link rel="stylesheet" href="./css/bootstrap-horizon.css">	    
+	    
+	    <style type="text/css">
+	    
+			body
+	    	{
+	    		overflow: hidden
+	    	}
+	    	
+			/* Regla CSS para definir la estética de la línea de atribución y ubicarla en la parte inferior del mapa */
+			div.olControlAttribution, div.olControlScaleLine 
+			{
+				font-family: Verdana;
+				font-size: 0.7em;
+				bottom: 3px;
+			}
+    
+	    </style>
+	    
+		<script type="text/javascript">
+		
+			/**
+			 * ES: Funcion para cargar el mapa al acceder a la pagina
+			 * EN: Function to load the map once the page is accessed
+			 */
+			$(document).ready(function() 
+			{	
+                // ES:Punto central del mapa
+				// EN: Central point of the map
+				var lat0 = 40.5053455;
+				var lon0 = -3.3481092;
+				var position0;
+				
+				// ES: Variables que albergarán los datos de los componentes del mapa, los marcadores y el propio mapa
+				// EN: Variables to harbour the map's data, the signposts and the map itself
+				var lastResponse = {};
+				var installationMarkers;
+				var map;
+				
+				// ES: Variables utilizadas para generar la representación del mapa en OpenLayers
+				// EN: Varaibles used to generate the map's representation on OpenLayers
+				var fromProjection;
+				var toProjection;
+				
+				// ES: Variables empleadas para albergar el tamaño y offset usado en los iconos
+				// EN: Variables used to harbour the size and offset used on the icons
+		        var size;
+		        var offset;
+				
+				// ES: Se inicializa el mapa 
+                // EN: Map is initialized
+				initMap();
+				
+				// ES: Se muestran los datos iniciales
+				// EN: Initial data is shown
+				addMarkers();
+				
+				// ES: Se repinta el mapa cada 5 minutos
+				// EN: The map is redrawn every 5 minutes
+				setInterval(function() {
+					addMarkers()
+				}, 60000*5);
+				
+				// ES: Función que inicializa el mapa
+				// EN: Function to initialize the map
+				function initMap() 
+				{ 
+                    // ES: Formas de proyección usadas en el mapa
+                    // EN: Projection's shapes used on the map
+                    fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+                    toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+                    
+                    map = new OpenLayers.Map("map");
+                    var mapnik = new OpenLayers.Layer.OSM();
+                    var initZoom = 16;	    
+                    
+                    // ES: Posición en la que se ubicará más tarde el marcador de la central
+	    			// EN: Position in which the central's marker will be later allocated
+	    			position0 = new OpenLayers.LonLat(lon0,lat0).transform(fromProjection, toProjection);
+                    
+                    map.addLayer(mapnik);
+                    
+                    // ES: Se inicializa la capa de marcadores
+	    			// EN: The signpost is initialized 
+                    installationMarkers = new OpenLayers.Layer.Markers( "Markers" );
+                    
+                    // ES: Se añade al mapa la capa de los marcadores de componentes
+	    			// EN: It is added the signposts layer to the map
+                    map.addLayer(installationMarkers); 
+                    
+                    // ES: Se establece el centro por defecto para la representación inicial del mapa
+	    			// EN: The map's default center is establish to be the initial representation of the map
+                    map.setCenter(position0, initZoom);
+                    
+                   
+				}; //initMap ()
+                
+                // ES: Función que añade los marcadores al mapa
+				// EN: Function to add the markers to the map
+				function addMarkers() 
+				{                        
+                    installationMarkers.destroy();
+                    
+                    // ES: Se eliminan los popups existentes en el mapa
+					// EN: The map's popoups are deleted
+				    while(map.popups.length) {
+				         map.removePopup(map.popups[0]);
+				    }
+                    
+                    // ES: Se inicializa la capa de marcadores
+					// EN: The signposts are initialized
+			        installationMarkers = new OpenLayers.Layer.Markers("Markers");
+                    
+                    // ES: Se inicializa el tamaño y offset usado en los iconos de marcadores
+					// EN: The size and offset udrf in the signpost's icons are initialized 
+			        size = new OpenLayers.Size(51, 55);
+			        offset = new OpenLayers.Pixel(-(size.w / 2), -(size.h/2));
+                    
+                    // ES: Se cargan los puntos actuales
+					// EN: The actual points are loaded
+                    //for()                     //TODO
+                        // ES: Punto del marcador
+                        // EN: Point of the parker
+                        var lat = 40.5053455;
+                        var lon = -3.3481092;
+                        var position = new OpenLayers.LonLat(lon, lat).transform(fromProjection, toProjection);
+
+                        // ES: Se genera el marcador pertinente
+                        // EN: The corresponding signpost is generated
+                        var componentMarker = new OpenLayers.Marker(position);
+                        componentMarker.icon = new OpenLayers.Icon("../img/locationBlue.png", size, offset);
+                        installationMarkers.addMarker(componentMarker);
+
+                    //end for()                    
+                    
+					// ES: Se añade al mapa la capa de los marcadores de componentes
+					// EN: The signpost's layer is added to the map
+					map.addLayer(installationMarkers);
+                    
+				}; //addMarkers ()
+                
+                // ES: Se establece que al pulsar en los marcadores se debe generar un PopUp con la información pertinente
+		        // EN: Once clicked in the signposts it must be generated a Popup with the corresponding information
+                map.events.register("click", map, function(evt) 
+                {
+                    // ES: Se obtienen las coordenadas del punto pulsado en el mapa
+                    // EN: The point's coordinates clicked on the map
+                    var pixel = map.getLayerPxFromViewPortPx(evt.xy);
+
+                    // ES: En caso de que las coordenadas del punto pulsado coincidan con las de un marcador de componente se muestran sus datos
+                    // EN: If the coordinates from the clicked point are the same as the signposts data are shown
+                    for (var i = 0; i < installationMarkers.markers.length; i++) 
+                    {
+                        var marker = installationMarkers.markers[i];
+                        var markerLonlat = marker.lonlat;
+                        var markerPixel = map.getPixelFromLonLat(markerLonlat);
+						var markerData = lastResponse[i];
+
+                        //TODO
+                        //ES: Valores que se van a mostrar en el mapa
+                        //EN: Values to be shown in the map
+                        var name = "Nombre";
+                        var value = "Valor";
+                        var lat = "33";
+                        var lon = "44";
+                        var link= "station.html";
+
+                        if (((pixel.x <= (markerPixel.x + size.w / 2))  && 
+                             (pixel.x >= (markerPixel.x - size.w / 2))) &&
+                            ((pixel.y <= (markerPixel.y + size.h / 2))  && 
+                             (pixel.y >= (markerPixel.y - size.h / 2))))
+                        {
+
+                            //ES: Información que se mostrará en el popup
+                            //EN Information that will be shown in the popup
+                            popup = new OpenLayers.Popup.FramedCloud("MarkerPopup",
+                                marker.lonlat,
+                                size,
+                                "<div>" + 
+                                    "<p style=\"color:#FF0000; font-weight: bold\">Information:</p>" + 
+                                    "<p>Name: " + name + ";</p>" + 
+                                    "<p>Value: " + value + ";</p>" + 
+                                    "<p>Coordenadas: " + lat + ", " + lon + ";</p>" +
+                                    "<p>Enlace: <a href='" + link + "'>More information</a>;</p>" +
+                                "</div>",
+                                null, true);
+                            map.addPopup(popup);
+                        }
+                    } //for
+				}); //map.events
+			}); //ready()
+		</script>
+	    
+    </head>
+
+    <body>
+		<div id='alert' style='display:none'></div>
+		<div id='alert2'></div>
+        
+        <div class="container-fluid" style="height: 100%">
+            <div class="row">
+                
+                <div class="col-sm-12">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <!-- Title -->
+                            <h1 class="centered_text"> UAH WEATHER STATIONS </h1>
+                            <br>
+                            
+                            <!-- Map box -->
+							<div class="col-sm-12 no-padding panel panel-primary">
+								<div class="panel-heading">
+									<h3 class="panel-title">Available Weather Stations</h3>
+								</div>
+								<div class="panel-body">
+									<!-- Map -->
+									<div id="map" class="panel-body" style="height:75%"></div>
+								</div>
+							</div>
+							
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

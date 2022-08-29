@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <!--codificación de caracteres utilizada, repetido?-->
+    <!-- LIBRARIES -->
+    <script src="./js/libs/jquery/jquery.min.js"></script>
+    <script src="./js/libs/charts/Chart.min.js"></script>
+    <script type="text/javascript" src="./js/gstatic.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="js/libs/jquery-cookie/jquery.cookie.js"></script>
+    <title> Inicio Sesion </title>
+    <link rel="icon" href="img/plant.png">
+    <link rel="stylesheet" href="css/style.css">
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <style>
+        .text {
+          font-family: Verdana;
+        }
+      </style>
+    <script type="text/javascript">
+
+
+
+
+
+    </script>
+</head>
+
+<body>
+    <h1>Iniciar sesión</h1>
+    <label for="usuario">Usuario:</label><br>
+    <input type="text" id="usuario" user="usuario"><br>
+    <label for="contrasena">Contraseña:</label><br>
+    <input type="password" id="contrasena" password="contrasena"><br><br>
+    <button id="boton">Iniciar Sesion</button>
+    <script>
+        var button = document.getElementById("boton");
+
+
+        button.onclick = function () {
+            var nombre = document.getElementById("usuario").value;
+            var contra = document.getElementById("contrasena").value;
+            var direccion = "http://uah-plantas.tech/GetUsuario?nombre=" + nombre + "&contrasena=" + contra;
+
+            if(nombre==""){
+                alert("Introduzca un nombre");
+            }else if(contra==""){
+                alert("Introduzca una contraseña ");
+            }else{
+            $.ajax(
+                {
+                    data: {},
+                    url: direccion,
+                    type: 'post',
+                    async: true,
+                    success: function (response) {
+                        var resp = JSON.parse(response);
+                        if (resp["nombre"]) { //Si el usuario ya existe se comprueba que la contraseña coincide
+                            if (resp["contrasena"] == contra) {
+                                $.removeCookie('id');
+                                $.cookie('id', resp["id"]);
+                                location.href = "listado.html";//Nos lleva a la pagina de listado
+                            } else {
+                                alert("Contraseña incorrecta");
+                            }
+                        } else { //Si no existe lo avisa
+
+                            alert("Usuario incorrecto");
+
+                        }
+                    }
+                });
+            }
+
+
+
+        }
+
+
+
+    </script>
+    <img src="img/plant.png" width="140" height="140" / alt="Icono Planta">
+    <a href="registro.html">¿No estás registrado? Registrate aquí</a>
+</body>
+
+</html>

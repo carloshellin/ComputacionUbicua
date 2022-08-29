@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title> Listado </title>
+    <link rel="icon" href="img/plant.png">
+    <link rel="stylesheet" href="css/style.css">
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="js/libs/jquery-cookie/jquery.cookie.js"></script>
+</head>
+
+<body>
+    <h1>Listado de macetas</h1>
+    <form>
+    </form>
+    <button id="boton">Consultar informacion</button>
+    <button id="boton2">Borrar Maceta</button>
+
+    <a href="nuevo.html"> <input type="button" value="Introducir nueva maceta"></a>
+
+    <button id="boton3">Cerrar Sesion</button>
+    <script>
+        var id = $.cookie('id');
+        var direccion = "http://uah-plantas.tech/GetMacetasUsuario?usuario_id=" + id;
+        $.ajax(
+            {
+                data: {},
+                url: direccion,
+                type: 'post',
+                async: true,
+                success: function (response) {
+                    var resp = JSON.parse(response);
+
+                    for (var key in resp) {
+                        var fila = document.createElement("input"); //Creamos la chekbox y rellenamos sus parametros
+                        fila.type = "radio";
+                        fila.id = resp[key]["id"];
+                        fila.name = "eleccion";
+                        fila.value = resp[key]["id"];
+                        var texto = document.createElement("label");
+                        texto.for = "male";
+                        var t = document.createTextNode(resp[key]["descripcion"]);
+                        texto.appendChild(t);
+                        //Añadimos al form
+                        document.forms[0].appendChild(fila);
+                        document.forms[0].appendChild(texto);
+                        //Salto de linea
+                        var br = document.createElement("br");
+                        document.forms[0].appendChild(br);
+
+                    }
+                }
+            });
+
+        var button = document.getElementById("boton");
+        button.onclick = function () {
+            var elementos = document.getElementsByName("eleccion");
+
+            for (var i = 0; i < elementos.length; i++) {
+                if (elementos[i].checked) {
+                    $.removeCookie('maceta');
+                    $.cookie('maceta', elementos[i].value);
+                }
+            }
+            location.href = "informacion.html";
+
+        }
+
+        var button2 = document.getElementById("boton2");
+
+        button2.onclick = function () {
+            var elementos2 = document.getElementsByName("eleccion");
+
+            for (var i = 0; i < elementos2.length; i++) {
+                if (elementos2[i].checked) {
+                    var direccion2 = " http://uah-plantas.tech/DeleteMacetaUsuario?id=" + elementos2[i].value + "&usuario_id=" + id;
+                    console.log("Maceta " + elementos2[i].value + " borrada");
+                    $.ajax(
+                        {
+                            data: {},
+                            url: direccion2,
+                            type: 'post',
+                            async: true,
+                            success: function (response) {
+                                var resp = JSON.parse(response);
+
+                            }
+                        }
+                    );
+                }
+            }
+        }
+
+
+        var button3 = document.getElementById("boton3");
+
+        button3.onclick = function () {
+            $.removeCookie('id');
+            location.href = "index.html";
+        }
+
+    </script>
+</body>

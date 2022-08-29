@@ -1,0 +1,596 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<!-- LIBRARIES -->
+	<script src="./js/libs/jquery/jquery.min.js"></script>
+	<script src="./js/libs/charts/Chart.min.js"></script>
+    <script type="text/javascript" src="./js/gstatic.js"></script>
+    
+	<!-- STYLESHEETS -->
+	<link rel="stylesheet" href="./css/bootswatch/cosmo/bootstrap.min.css">
+	<link rel="stylesheet" href="./css/layout.css">
+	<link rel="stylesheet" href="./css/bootstrap-horizon.css">
+	<link rel="stylesheet" href="./css/meter.css">
+	<link rel="stylesheet" href="./css/font-awesome.min.css">
+	<link rel="stylesheet" href="./css/weather-icons.min.css">
+	<style>	
+		html, body {
+		    height:95%;
+		}
+		body {
+		    margin:0px;
+		    padding:0px;
+		    min-width:1000px;            
+		}
+	</style>
+	
+	<script>	
+		var typeOfData = 1;
+		var stationId = 0;	
+		
+		//EN: Function that is executed when the page is ready
+		$(document).ready(function() 
+		{
+			//EN:Read the ID of the station from the URL parameter
+			var url_string = location.href;
+			var url = new URL(url_string);
+			stationId = url.searchParams.get("station");			
+			loadMenu();
+			changeValue(0);
+		});
+		
+
+		//EN:Function that shows/loads the menu options according the active sensors of the station
+		function loadMenu()
+		{
+			//EN:Hide the buttons of the sensors to show only the neccesary
+			$("#menuTemperature").hide();
+			$("#menuHumidity").hide();
+			$("#menuRaining").hide();
+			$("#menuUV").hide();
+			$("#menuOzone").hide();
+			$("#menuWind").hide();
+			$("#rowTemperature").hide();
+			$("#rowHumidity").hide();
+			$("#rowWind").hide();
+			$("#rowUV").hide();
+			$("#rowPresure").hide();
+			$("#rowRain").hide();
+			$("#rowOzone").hide();
+
+			//EN:Search the information about the station's active sensors to show into the meu
+	        $.ajax(
+			{
+				data:  {stationId : stationId },
+				url:   "GetStationSensors",
+				error: function( jqXHR, textStatus, errorThrown )
+				{
+				},
+				type:  'post',
+				async: false,
+				success:  function (response) 
+				{
+					//EN:Transform the JSON
+					response = $.parseJSON(response);
+					
+					$.each(response, function(i, item)
+					{
+						switch (item.id) 
+						{
+						  case 1:
+							if(item.available>0)
+						  	{
+								$("#menuTemperature").show();
+								$("#rowTemperature").show();
+								//EN:Create label
+								$("#rowTemperature").html('<div class="card '+ getColorLabel(item.label) +' order-card">'
+						                +'<div class="card-block">'
+						                +'<h2 class="m-b-20">Temperature</h2>'
+						                +'<h2 class="text-right"><i class="wi wi-thermometer f-left" ></i>'
+						                +'<span>' + item.value + item.units + '</span></h2>'
+						                +'</div>'
+						                +' </div>');
+							}
+						  break;
+						  case 2:
+							if(item.available>0)
+						  	{
+								$("#menuHumidity").show();
+								$("#rowHumidity").show();
+								//EN:Create label
+								$("#rowHumidity").html('<div class="card '+ getColorLabel(item.label) +' order-card">'
+						                +'<div class="card-block">'
+						                +'<h2 class="m-b-20">Humidity</h2>'
+						                +'<h2 class="text-right"><i class="wi wi-humidity f-left" ></i>'
+						                +'<span>' + item.value + item.units + '</span></h2>'
+						                +'</div>'
+						                +' </div>');
+							}
+						  break;
+						  case 3:
+							if(item.available>0)
+						  	{
+								$("#menuRaining").show();
+								$("#rowRain").show();
+								//EN:Create label
+								$("#rowRain").html('<div class="card '+ getColorLabel(item.label) +' order-card">'
+						                +'<div class="card-block">'
+						                +'<h2 class="m-b-20">Rain</h2>'
+						                +'<h2 class="text-right"><i class="wi wi-rain f-left" ></i>'
+						                +'<span>' + item.value + item.units + '</span></h2>'
+						                +'</div>'
+						                +' </div>');
+							}
+						  break;
+						  case 4:
+								if(item.available>0)
+							  	{
+									$("#menuUV").show();
+									$("#rowUV").show();
+									//EN:Create label
+									$("#rowUV").html('<div class="card '+ getColorLabel(item.label) +' order-card">'
+							                +'<div class="card-block">'
+							                +'<h2 class="m-b-20">UV</h2>'
+							                +'<h2 class="text-right"><i class="wi wi-sunny f-left" ></i>'
+							                +'<span>' + item.value + item.units + '</span></h2>'
+							                +'</div>'
+							                +' </div>');
+								}
+							  break;
+						  case 5:
+								if(item.available>0)
+							  	{
+									$("#menuOzone").show();
+									$("#rowOzone").show();
+									//EN:Create label
+									$("#rowOzone").html('<div class="card '+ getColorLabel(item.label) +' order-card">'
+							                +'<div class="card-block">'
+							                +'<h2 class="m-b-20">Ozone</h2>'
+							                +'<h2 class="text-right"><i style="font-size: 30px; width: 40; float:left" ><img src="./img/ozono_white.png" alt="logo" width="30" height="26" /> </i>'
+							                +'<span>' + item.value + item.units + '</span></h2>'
+							                +'</div>'
+							                +' </div>');
+								}
+							  break;
+						  case 6:
+								if(item.available>0)
+							  	{
+									$("#menuWind").show();
+									$("#rowWind").show();
+									//EN:Create label
+									$("#rowWind").html('<div class="card '+ getColorLabel(item.label) +' order-card">'
+							                +'<div class="card-block">'
+							                +'<h2 class="m-b-20">Wind</h2>'
+							                +'<h2 class="text-right"><i class="wi wi-strong f-left" ></i>'
+							                +'<span>' + item.value + item.units + '</span></h2>'
+							                +'</div>'
+							                +' </div>');
+								}
+							  break;
+						  case 7:
+								if(item.available>0)
+							  	{
+									$("#menuPresure").show();
+									$("#rowPresure").show();
+									//EN:Create label
+									$("#rowPresure").html('<div class="card '+ getColorLabel(item.label) +' order-card">'
+							                +'<div class="card-block">'
+							                +'<h2 class="m-b-20">Presure</h2>'
+							                +'<h2 class="text-right"><i class="wi wi-barometer f-left" ></i>'
+							                +'<span>' + item.value + item.units + '</span></h2>'
+							                +'</div>'
+							                +' </div>');
+								}
+							  break;
+						}
+					});
+				}
+			}); 			
+		}
+		
+		
+	
+		//EN: Function to print the char
+		function createGraphic(minData, maxData, avgData, labels, canvas, contenedor, legendid) {
+			$('#'+canvas).remove(); // this is my <canvas> element
+			$('#'+contenedor).append('<canvas id="' + canvas + '" width="450" height="150">');
+			var ctx = $("#"+canvas);
+	
+			var myChart = new Chart(ctx, {
+				type : 'line',
+				data : {
+					labels :labels,
+					datasets : [ {
+						label : "MIN",
+						data : minData,
+						lineTension : 0,
+						backgroundColor : 'transparent',
+						borderColor : '#007bff',
+						borderWidth : 4,
+						pointBackgroundColor : '#007bff'
+					}, {
+						label : "AVG",
+						data : avgData,
+						lineTension : 0,
+						backgroundColor : 'transparent',
+						borderColor : '#000000',
+						borderWidth : 4,
+						pointBackgroundColor : '#8c8786'
+					}, {
+						label : "MAX",
+						data : maxData,
+						lineTension : 0,
+						backgroundColor : 'transparent',
+						borderColor : '#f43209',
+						borderWidth : 4,
+						pointBackgroundColor : '#f43209'
+					} ]
+				},
+				options : {
+					scales : {
+						yAxes : [ {
+							ticks : {
+								beginAtZero : false
+							}
+						} ]
+					}
+				}
+			});
+		}
+	
+		//EN: Function to change the type of data showed
+		function changeValue(newValue) {
+			typeOfData = newValue;
+			switch (typeOfData) {
+			case 0:
+				$("#titleSection").text("Sensor Details");
+				$("#dataSection").hide();
+				$("#generalSection").show();	
+				loadDetails();
+				break;
+			case 1:
+				$("#titleSection").text("Temperature");
+				$("#dataSection").show();
+				$("#generalSection").hide();
+				loadData(1);
+				break;
+			case 2:
+				$("#titleSection").text("Humidity");
+				$("#dataSection").show();
+				$("#generalSection").hide();	
+				loadData(2);
+				break;
+			case 3:
+				$("#titleSection").text("Raining");
+				$("#dataSection").show();
+				$("#generalSection").hide();	
+				loadData(3);
+				break;
+			case 4:
+				$("#titleSection").text("UV Index");
+				$("#dataSection").show();
+				$("#generalSection").hide();	
+				loadData(4);
+				break;
+			case 5:
+				$("#titleSection").text("Ozone");
+				$("#dataSection").show();
+				$("#generalSection").hide();		
+				loadData(5);
+				break;
+			case 6:
+				$("#titleSection").text("Wind");
+				$("#dataSection").show();
+				$("#generalSection").hide();		
+				loadData(6);
+				break;
+			case 7:
+				$("#titleSection").text("Presure");
+				$("#dataSection").show();
+				$("#generalSection").hide();		
+				loadData(7);
+				break;
+			default:
+				$("#titleSection").text("Details");
+				$("#dataSection").hide();
+				$("#generalSection").show();	
+				loadDetails();
+				break;
+			}
+		}
+		
+		//EN:Function that shows the general status of the weather station
+		function loadDetails()
+		{
+			//EN:Search weather forecast
+			$.ajax(
+			{
+				data:  {stationId : stationId},
+				url:   "GetWeatherForecast",
+				error: function( jqXHR, textStatus, errorThrown )
+				{
+				},
+				type:  'post',
+				async: false,
+				success:  function (response) 
+				{
+					//ES:Transformar el JSON
+					//EN:Transform the JSON
+
+					var json = $.parseJSON(response);
+					console.log(json);
+
+					$("#city").html(
+							json.city.name + " - "); //TODO Falta recuperar el nombre de la estación
+					$("#todayMaxTemperature").html(
+							(json.list[0].main.temp_max - 273.15).toFixed(2));
+					$("#todayMinTemperature").html(
+							(json.list[0].main.temp_min - 273.15).toFixed(2));
+					$("#todayCurrentTemperature").html(
+							(json.list[0].main.temp - 273.15).toFixed(2));
+					$("#todayWindSpeed").html(
+							json.list[0].wind.speed+"Km/h ");
+					$("#todayAverageHumidity").html(
+							json.list[0].main.humidity + "%");
+					
+					setWeatherIcon($("#todayWeatherIcon"), json.list[0].weather[0].main);					
+				}
+			});
+		}
+
+
+		// EN: Sets the weather's icons
+		function setWeatherIcon(img, icon) {
+			switch (icon) {
+			case "clear sky":
+				img.attr('src', './img/weather/partlycloudy.svg')
+				break;
+			case "scattered clouds":
+				img.attr('src', './img/weather/cloudy.svg')
+				break;
+			case "snow":
+				img.attr('src', './img/weather/snow.svg')
+				break;
+			case "shower rain":
+				img.attr('src', './img/weather/rain.svg')
+				break;
+			case "rain":
+				img.attr('src', './img/weather/rain.svg')
+				break;
+			case "thunderstorm":
+				img.attr('src', './img/weather/storm.svg')
+				break;
+			case "few clouds":
+				img.attr('src', './img/weather/cloudy.svg')
+				break;
+			default:
+				img.attr('src', './img/weather/clear.svg')
+				break;
+			}
+		}
+		
+		//EN:Function that load the historical data of a sensor
+		function loadData(type)
+		{
+			//EN:Values of the previous week 
+			 $.ajax(
+			{
+				data:  {stationId : stationId, sensorId:type },
+				url:   "GetLastWeekStationSensor",
+				error: function( jqXHR, textStatus, errorThrown )
+				{
+				},
+				type:  'post',
+				async: false,
+				success:  function (response) 
+				{
+					//EN:Transform the JSON
+					response = $.parseJSON(response);
+					createGraphic(response.minValues, response.maxValues, response.avgValues, response.labels, "myChart", "contenedorgrafico",  "legend");
+				}
+			});
+
+			//EN:Values by month
+			$.ajax(
+			{
+				data:  {stationId : stationId, sensorId:type },
+				url:   "GetMonthStationSensor",
+				error: function( jqXHR, textStatus, errorThrown )
+				{
+				},
+				type:  'post',
+				async: false,
+				success:  function (response) 
+				{
+					//EN:Transform the JSON
+					response = $.parseJSON(response);
+					createGraphic(response.minValues, response.maxValues, response.avgValues, response.labels, "myChartMonth", "contenedorgraficoMonth", "legendMonth");
+				}
+			});
+		}	
+			
+		
+		function getColorLabel(label)
+		{
+			switch (label) {
+			  case 0:
+			    return "bg-c-blue";
+			    break;
+			  case 1:
+				    return "bg-c-green";
+				    break;
+			  case 2:
+				    return "bg-c-red";
+				    break;
+			  case 3:
+				    return "bg-c-yellow";
+				    break;
+			  default:
+				    return "bg-c-green";
+			    break;
+			}
+		}
+	</script>
+	
+</head>
+
+<body>
+	<div class="container-fluid" style="height: 100%">
+		<div class="row">
+			<!-- Menu Options -->
+			<nav class="col-md-2 d-none d-md-block bg-light sidebar">
+				<div class="sidebar-sticky">
+					<ul class="nav flex-column">
+						<li class="nav-item">
+							<a class="nav-link active" onclick="changeValue(0)"> 
+								<i class="wi wi-sunrise f-left wi-6w" style="font-size: 30px; width: 40; color:blue" ></i>
+								General <span class="sr-only">(current)</span>
+							</a>
+						</li>
+						<li class="nav-item" id="menuTemperature">
+							<a class="nav-link active" onclick="changeValue(1)"> 
+								<i class="wi wi-thermometer f-left wi-6w" style="font-size: 30px; width: 40; color:blue" ></i>
+								Temperature <span class="sr-only">(current)</span>
+							</a>
+						</li>
+						<li class="nav-item" id="menuHumidity">
+							<a class="nav-link active" onclick="changeValue(2)"> 
+								<i class="wi wi-humidity f-left wi-6w" style="font-size: 30px; width: 40; color:blue" ></i>
+                          		 Humity <span class="sr-only">(current)</span>
+							</a>
+						</li>
+						<li class="nav-item"  id="menuRaining">
+							<a class="nav-link active" onclick="changeValue(3)"> 
+								<i class="wi wi-rain f-left wi-6w" style="font-size: 30px; width: 40; color:blue" ></i>
+                          		 Raining <span class="sr-only">(current)</span>
+							</a>
+						</li>
+						<li class="nav-item"  id="menuUV">
+							<a class="nav-link active" onclick="changeValue(4)"> 
+								<i class="wi wi-day-sunny f-left wi-6w" style="font-size: 30px; width: 40; color:blue" ></i>
+                          		 UV Index <span class="sr-only">(current)</span>
+							</a>
+						</li>
+						<li class="nav-item"  id="menuOzone">
+							<a class="nav-link active" onclick="changeValue(5)"> 
+								<i style="font-size: 30px; width: 40" ><img src="./img/ozono_blue.png" alt="logo" width="30" height="30" /> </i>
+                          		 Ozone <span class="sr-only">(current)</span>
+							</a>
+						</li>
+						<li class="nav-item"  id="menuWind">
+							<a class="nav-link active" onclick="changeValue(6)"> 
+								<i class="wi wi-strong-wind f-left wi-5w" style="font-size: 30px; width: 40; color:blue" ></i>
+                          		 Wind <span class="sr-only">(current)</span>
+							</a>
+						</li>
+						<li class="nav-item"  id="menuPresure">
+							<a class="nav-link active" onclick="changeValue(7)"> 
+								<i class="wi wi-barometer f-left wi-5w" style="font-size: 30px; width: 40; color:blue" ></i>
+                          		 Presure <span class="sr-only">(current)</span>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</nav>
+
+			<!-- Main part of the webpage -->
+			<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4" style="max-height: 100%; overflow-y:scroll">
+				<!-- Title -->
+				<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+					<h1 id="titleSection"></h1>
+				</div>
+				
+				<!-- GENERAL STATUS OF THE SENSORS -->
+				<div id="generalSection">
+				
+				<!-- Wheather forecast -->
+					<div class="row well" style="margin-right: 30px; margin-left: 30px; margin-top: 10px;">
+						<h3>
+							<span id="city"></span>
+						</h3>
+						<!-- ES: Icono grande / EN: Big icon -->
+						<div class="col-sm-3 col-sm-offset-2 current_weather">
+							<img src="" class="bigWeatherIcon" id="todayWeatherIcon">
+						</div>
+						<!-- ES: Temperatura / EN: Temperature -->
+						<div class="col-sm-3">
+							<h2 id="todayDayName">Today</h2>
+							
+							<h2>
+								<span id="todayCurrentTemperature">25</span>ºC
+							</h2>
+						</div>
+						<!-- ES: Resto de valores / EN: Other values -->
+						<div class="col-sm-3">
+							<h4>
+								Max &uarr; <span id="todayMaxTemperature">30</span>ºC
+							</h4>
+							<h4>
+								Min &darr; <span id="todayMinTemperature">15</span>ºC
+							</h4>
+							<h4>
+								 <span id="todayWindSpeed"></span><span id="todayWindDirection"></span>
+							</h4>
+							<h4></h4>
+						</div>
+					</div>
+				
+				
+					<!-- Labels of the sensors -->	
+				    <div class="row">
+				        <div class="col-md-3 col-xl-3" id="rowTemperature"></div>	
+				        <div class="col-md-3 col-xl-3" id="rowHumidity"></div>	
+				        <div class="col-md-3 col-xl-3" id="rowRain"></div>	
+				        <div class="col-md-3 col-xl-3"  id="rowUV"></div>	
+				        <div class="col-md-3 col-xl-3"  id="rowOzone"></div>				        
+				        <div class="col-md-3 col-xl-3"  id="rowWind"></div>
+				        <div class="col-md-3 col-xl-3"  id="rowPresure"></div>	        
+					</div>		
+					 <div class="row">
+					 	<!-- Quality of air -->
+					
+					 	<!-- thermal sensation -->	
+					 </div>
+					 <div class="row"><!-- Alerts -->	
+					 </div>
+					 <div class="row"><!-- weather forecast -->
+					 </div>					
+				</div>	
+				
+				<!-- DATA OF EACH SENSOR -->
+				<div id="dataSection" >					
+					<br>
+					<h2>Last Week Values</h2>				
+					<!-- Chart -->
+					<div class="panel-body">
+						<div class="col-sm-12 col-sm-offset-0 contenido"
+							id="contenedorgrafico">
+							<div id="legend" class="legendcanvas"></div>
+							<canvas id="myChart" width="450" height="150"></canvas>
+						</div>
+					</div>		
+					<br>
+					<h2>Monthly Values</h2>				
+					<!-- Chart -->
+					<div class="panel-body">
+						<div class="col-sm-12 col-sm-offset-0 contenido"
+							id="contenedorgraficoMonth">
+							<div id="legendMonth" class="legendcanvas"></div>
+							<canvas id="myChartMonth" width="450" height="150"></canvas>
+						</div>
+					</div>
+					<!-- Table -->
+					<h2>Detailed Values</h2>
+					<div class="table-responsive">
+						<table id="tableValues" class="table table-striped table-sm">
+						</table>
+					</div>
+					<br><br>
+					<br><br>
+				</div>
+			</main>
+		</div>
+	</div>
+	<br><br>
+</body>
+</html>

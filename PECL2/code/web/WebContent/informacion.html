@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <!--codificación de caracteres utilizada-->
+    <!-- LIBRERIAS -->
+    <script src="./js/libs/jquery/jquery.min.js"></script>
+    <script src="./js/libs/charts/Chart.min.js"></script>
+    <script type="text/javascript" src="./js/gstatic.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="js/libs/jquery-cookie/jquery.cookie.js"></script>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <title>Informacion</title>
+    <link rel="icon" href="img/plant.png">
+    <link rel="stylesheet" href="css/style.css">
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+</head>
+
+<body>
+    <h1>Informacion recogida</h1>
+    <h2>Sensores</h2>
+    <button id="boton3">Inicio</button>
+    <button id="boton4">Cerra Sesion</button>
+    <script>
+        var id = $.cookie('id');
+        var maceta = $.cookie('maceta');
+        var direccion = "http://uah-plantas.tech/GetMacetaUsuario?id=" + maceta + "&usuario_id=" + id;
+        $.ajax(
+            {
+                data: {},
+                url: direccion,
+                type: 'post',
+                async: true,
+                success: function (response) {
+                    var resp = JSON.parse(response); 
+                    var descripcion = document.createElement("label");
+                    descripcion.for = "male";
+                    var t = document.createTextNode(resp["descripcion"]);
+                    descripcion.appendChild(t);
+                    document.body.appendChild(descripcion);
+                }
+            });
+        var direccion2 = "http://uah-plantas.tech/GetSensoresMaceta?maceta_id=" + maceta;
+        $.ajax(
+            {
+                data: {},
+                url: direccion2,
+                type: 'post',
+                async: true,
+                success: function (response) {
+                    var resp = JSON.parse(response);
+                    $.cookie('sensor1', resp[0]["id"]);
+                    $.cookie('sensor2', resp[1]["id"]);
+                    $.cookie('sensor3', resp[2]["id"]);
+                    $.cookie('sensor4', resp[3]["id"]);
+                }
+            });
+        var sensor1 = $.cookie('sensor1');
+        var sensor2 = $.cookie('sensor2');
+        var sensor3 = $.cookie('sensor3');
+        var sensor4 = $.cookie('sensor4');
+        var direccion3 = "http://uah-plantas.tech/GetMedidasMaceta?sensor_id=" + sensor1;
+        $.ajax(
+            {
+                data: {},
+                url: direccion3,
+                type: 'post',
+                async: true,
+                success: function (response) {
+                    var resp = JSON.parse(response);
+                    var tam=0;
+                    for (var key in resp) {
+                            tam+=1;
+                        }
+                    if(tam!=0){
+
+                    // Load the Visualization API and the corechart package.
+                    google.charts.load('current', { packages: ['corechart', 'bar'] });
+
+                    // Set a callback to run when the Google Visualization API is loaded.
+                    google.charts.setOnLoadCallback(drawBasic);
+
+                    function drawBasic() {
+
+                        let arrayTabla = [
+                            ['Fecha', 'Medida', { role: 'style' }]];
+
+                        for (var key in resp) {
+                            var fecha = resp[key]["fecha"]
+                            var valor = resp[key]["valor"]
+                            arrayTabla.push([fecha, valor, 'silver']); 
+                        }
+
+                        var data = google.visualization.arrayToDataTable(arrayTabla);
+                        var options = {
+                            title: 'Agua en el deposito',
+                            hAxis: {
+                                title: 'Dia',
+                                format: 'h:mm a',
+                                viewWindow: {
+                                    min: [7, 30, 0],
+                                    max: [17, 30, 0]
+                                }
+                            },
+                            vAxis: {
+                                title: 'Unidades'
+                            }
+                        };
+
+                        var chart = new google.visualization.ColumnChart(
+                            document.getElementById('chart_div'));
+
+                        chart.draw(data, options);
+                    }
+                }else{
+                    // Load the Visualization API and the corechart package.
+                    google.charts.load('current', { packages: ['corechart', 'bar'] });
+
+                    // Set a callback to run when the Google Visualization API is loaded.
+                    google.charts.setOnLoadCallback(drawBasic);
+
+                    function drawBasic() {
+
+                        let arrayTabla = [
+                            ['Fecha', 'Medida', { role: 'style' }]];
+
+                        
+                            var fecha = "Sin datos";
+                            var valor = 0;
+                            arrayTabla.push([fecha, valor, 'silver']); 
+                        
+
+                        var data = google.visualization.arrayToDataTable(arrayTabla);
+                        var options = {
+                            title: 'Agua en el deposito',
+                            hAxis: {
+                                title: 'Dia',
+                                format: 'h:mm a',
+                                viewWindow: {
+                                    min: [7, 30, 0],
+                                    max: [17, 30, 0]
+                                }
+                            },
+                            vAxis: {
+                                title: 'Unidades'
+                            }
+                        };
+
+                        var chart = new google.visualization.ColumnChart(
+                            document.getElementById('chart_div'));
+
+                        chart.draw(data, options);
+                    }
+                }
+            }
+            });
+        var direccion4 = "http://uah-plantas.tech/GetMedidasMaceta?sensor_id=" + sensor2;
+        $.ajax(
+            {
+                data: {},
+                url: direccion4,
+                type: 'post',
+                async: true,
+                success: function (response) {
+                    var resp = JSON.parse(response);
+                    var tam=0;
+                    for (var key in resp) {
+                            tam+=1;
+                        }
+                    if(tam!=0){
+
+                    // Load the Visualization API and the corechart package.
+                    google.charts.load('current', { packages: ['corechart', 'bar'] });
+
+                    // Set a callback to run when the Google Visualization API is loaded.
+                    google.charts.setOnLoadCallback(drawBasic);
+
+                    function drawBasic() {
+
+                        let arrayTabla = [
+                            ['Fecha', 'Medida', { role: 'style' }]];
+
+                        for (var key in resp) {
+                            var fecha = resp[key]["fecha"]
+                            var valor = resp[key]["valor"]
+                            arrayTabla.push([fecha, valor, 'silver']); 
+                        }
+
+                        var data = google.visualization.arrayToDataTable(arrayTabla);
+                        var options = {
+                            title: 'Humedad en el ambiente',
+                            hAxis: {
+                                title: 'Dia',
+                                format: 'h:mm a',
+                                viewWindow: {
+                                    min: [7, 30, 0],
+                                    max: [17, 30, 0]
+                                }
+                            },
+                            vAxis: {
+                                title: 'Unidades'
+                            }
+                        };
+
+                        var chart = new google.visualization.ColumnChart(
+                            document.getElementById('chart_div2'));
+
+                        chart.draw(data, options);
+                    }
+                }else{
+                    // Load the Visualization API and the corechart package.
+                    google.charts.load('current', { packages: ['corechart', 'bar'] });
+
+                    // Set a callback to run when the Google Visualization API is loaded.
+                    google.charts.setOnLoadCallback(drawBasic);
+
+                    function drawBasic() {
+
+                        let arrayTabla = [
+                            ['Fecha', 'Medida', { role: 'style' }]];
+
+                        
+                            var fecha = "Sin datos";
+                            var valor = 0;
+                            arrayTabla.push([fecha, valor, 'silver']); 
+                        
+
+                        var data = google.visualization.arrayToDataTable(arrayTabla);
+                        var options = {
+                            title: 'Humedad en el ambiente',
+                            hAxis: {
+                                title: 'Dia',
+                                format: 'h:mm a',
+                                viewWindow: {
+                                    min: [7, 30, 0],
+                                    max: [17, 30, 0]
+                                }
+                            },
+                            vAxis: {
+                                title: 'Unidades'
+                            }
+                        };
+
+                        var chart = new google.visualization.ColumnChart(
+                            document.getElementById('chart_div2'));
+
+                        chart.draw(data, options);
+                    }
+                }
+            }
+            });
+            
+            var direccion5 = "http://uah-plantas.tech/GetMedidasMaceta?sensor_id=" + sensor3;
+        $.ajax(
+            {
+                data: {},
+                url: direccion5,
+                type: 'post',
+                async: true,
+                success: function (response) {
+                    var resp = JSON.parse(response);
+                    var tam=0;
+                    for (var key in resp) {
+                            tam+=1;
+                        }
+                    if(tam!=0){
+
+                    // Load the Visualization API and the corechart package.
+                    google.charts.load('current', { packages: ['corechart', 'bar'] });
+
+                    // Set a callback to run when the Google Visualization API is loaded.
+                    google.charts.setOnLoadCallback(drawBasic);
+
+                    function drawBasic() {
+
+                        let arrayTabla = [
+                            ['Fecha', 'Medida', { role: 'style' }]];
+
+                        for (var key in resp) {
+                            var fecha = resp[key]["fecha"]
+                            var valor = resp[key]["valor"]
+                            arrayTabla.push([fecha, valor, 'silver']); 
+                        }
+
+                        var data = google.visualization.arrayToDataTable(arrayTabla);
+                        var options = {
+                            title: 'Humedad en la tierra',
+                            hAxis: {
+                                title: 'Dia',
+                                format: 'h:mm a',
+                                viewWindow: {
+                                    min: [7, 30, 0],
+                                    max: [17, 30, 0]
+                                }
+                            },
+                            vAxis: {
+                                title: 'Unidades'
+                            }
+                        };
+
+                        var chart = new google.visualization.ColumnChart(
+                            document.getElementById('chart_div3'));
+
+                        chart.draw(data, options);
+                    }
+                }else{
+                    // Load the Visualization API and the corechart package.
+                    google.charts.load('current', { packages: ['corechart', 'bar'] });
+
+                    // Set a callback to run when the Google Visualization API is loaded.
+                    google.charts.setOnLoadCallback(drawBasic);
+
+                    function drawBasic() {
+
+                        let arrayTabla = [
+                            ['Fecha', 'Medida', { role: 'style' }]];
+
+                        
+                            var fecha = "Sin datos";
+                            var valor = 0;
+                            arrayTabla.push([fecha, valor, 'silver']); 
+                        
+
+                        var data = google.visualization.arrayToDataTable(arrayTabla);
+                        var options = {
+                            title: 'Humedad en la tierra',
+                            hAxis: {
+                                title: 'Dia',
+                                format: 'h:mm a',
+                                viewWindow: {
+                                    min: [7, 30, 0],
+                                    max: [17, 30, 0]
+                                }
+                            },
+                            vAxis: {
+                                title: 'Unidades'
+                            }
+                        };
+
+                        var chart = new google.visualization.ColumnChart(
+                            document.getElementById('chart_div3'));
+
+                        chart.draw(data, options);
+                    }
+                }
+            }
+            });
+            var direccion6 = "http://uah-plantas.tech/GetMedidasMaceta?sensor_id=" + sensor4;
+            var direccion4 = "http://uah-plantas.tech/GetMedidasMaceta?sensor_id=" + sensor2;
+        $.ajax(
+            {
+                data: {},
+                url: direccion6,
+                type: 'post',
+                async: true,
+                success: function (response) {
+                    var resp = JSON.parse(response);
+                    var tam=0;
+                    for (var key in resp) {
+                            tam+=1;
+                        }
+                    if(tam!=0){
+
+                    // Load the Visualization API and the corechart package.
+                    google.charts.load('current', { packages: ['corechart', 'bar'] });
+
+                    // Set a callback to run when the Google Visualization API is loaded.
+                    google.charts.setOnLoadCallback(drawBasic);
+
+                    function drawBasic() {
+
+                        let arrayTabla = [
+                            ['Fecha', 'Medida', { role: 'style' }]];
+
+                        for (var key in resp) {
+                            var fecha = resp[key]["fecha"]
+                            var valor = resp[key]["valor"]
+                            arrayTabla.push([fecha, valor, 'silver']); 
+                        }
+
+                        var data = google.visualization.arrayToDataTable(arrayTabla);
+                        var options = {
+                            title: 'Temperatura',
+                            hAxis: {
+                                title: 'Dia',
+                                format: 'h:mm a',
+                                viewWindow: {
+                                    min: [7, 30, 0],
+                                    max: [17, 30, 0]
+                                }
+                            },
+                            vAxis: {
+                                title: 'Unidades'
+                            }
+                        };
+
+                        var chart = new google.visualization.ColumnChart(
+                            document.getElementById('chart_div4'));
+
+                        chart.draw(data, options);
+                    }
+                }else{
+                    // Load the Visualization API and the corechart package.
+                    google.charts.load('current', { packages: ['corechart', 'bar'] });
+
+                    // Set a callback to run when the Google Visualization API is loaded.
+                    google.charts.setOnLoadCallback(drawBasic);
+
+                    function drawBasic() {
+
+                        let arrayTabla = [
+                            ['Fecha', 'Medida', { role: 'style' }]];
+
+                        
+                            var fecha = "Sin datos";
+                            var valor = 0;
+                            arrayTabla.push([fecha, valor, 'silver']); 
+                        
+
+                        var data = google.visualization.arrayToDataTable(arrayTabla);
+                        var options = {
+                            title: 'Temperatura',
+                            hAxis: {
+                                title: 'Dia',
+                                format: 'h:mm a',
+                                viewWindow: {
+                                    min: [7, 30, 0],
+                                    max: [17, 30, 0]
+                                }
+                            },
+                            vAxis: {
+                                title: 'Unidades'
+                            }
+                        };
+
+                        var chart = new google.visualization.ColumnChart(
+                            document.getElementById('chart_div4'));
+
+                        chart.draw(data, options);
+                    }
+                }
+            }
+            });
+
+       var button3 = document.getElementById("boton3");
+
+        button3.onclick = function () {
+            location.href = "listado.html";
+        }
+
+        var button4 = document.getElementById("boton4");
+
+        button4.onclick = function () {
+            $.removeCookie('id');
+            location.href = "index.html";
+        }
+
+    </script>
+    <div id="chart_div" style="width:400; height:300"></div>
+    <div id="chart_div2" style="width:400; height:300"></div>
+    <div id="chart_div3" style="width:400; height:300"></div>
+    <div id="chart_div4" style="width:400; height:300"></div>
+    
+</body>

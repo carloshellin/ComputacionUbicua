@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <title>Registro</title>
+    <link rel="icon" href="img/plant.png">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+</head>
+
+<body>
+    <h1>Registro</h1>
+    <label for="usuario">Usuario:</label><br>
+    <input type="text" id="usuario" user="usuario"><br>
+    <label for="contrasena">Contraseña:</label><br>
+    <input type="password" id="contrasena" password="contrasena"><br><br>
+    <label for="contrasena">Comprobar contraseña:</label><br>
+    <input type="password" id="comprobar" password="contrasena"><br><br>
+    <button id="boton">Registrarse</button>
+    <script>
+        var button = document.getElementById("boton");
+
+
+        button.onclick = function () {
+            var nombre = document.getElementById("usuario").value;
+            var contra = document.getElementById("contrasena").value;
+            var comp = document.getElementById("comprobar").value;
+            var direccion = "http://uah-plantas.tech/GetUsuario?nombre=" + nombre + "&contrasena=" + contra;
+
+ 
+            if(nombre==""){
+                alert("Introduzca un nombre");
+            }else if(contra==""){
+                alert("Introduzca una contraseña ");
+            }else if(comp==""){
+                alert("Introduzca la contraseña de nuevo");
+            }else if (contra == comp) {//Si la contraseña coincide
+
+                //Comprobamos si el usuario ya esta registrado
+                $.ajax(
+                    {
+                        data: {},
+                        url: direccion,
+                        type: 'post',
+                        async: true,
+                        success: function (response) {
+                            var resp = JSON.parse(response);
+                            if (resp["nombre"]) { //Si el usuario ya existe envia una alerta
+                                alert("El usuario ya existe, inicie sesion");
+                                location.href = "index.html";//Nos lleva a la pagina d iniciar sesion
+                            } else { //Si no existe lo crea
+                                var direccion2 = "http://uah-plantas.tech/NewUsuario?nombre=" + nombre + "&contrasena=" + contra;
+                                $.ajax(
+                                    {
+                                        data: {},
+                                        url: direccion2,
+                                        type: 'post',
+                                        async: true,
+                                        success: function (response) { } });
+                                
+                                
+                                        location.href = "index.html";//Nos lleva a la pagina d iniciar sesion
+
+                                    }
+                        }
+                        });
+
+
+
+            } else {
+                window.alert("No coincide la contraseña");
+            }
+        }
+
+
+
+    </script>
+
+
+
+</body>
